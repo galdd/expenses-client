@@ -1,7 +1,6 @@
-import { Tooltip } from "antd";
+import { useState } from "react";
 import { UserOutlined } from "@ant-design/icons";
 import "./user-picture.css";
-import {} from "react";
 
 type Props = {
   creatorImageUrl?: string;
@@ -9,15 +8,24 @@ type Props = {
 };
 
 export const UserPicture = ({ creatorImageUrl, creatorName }: Props) => {
-  return creatorImageUrl ? (
-    <Tooltip title={creatorName}>
-      <img className="user-icon" src={creatorImageUrl} alt={creatorName} />
-    </Tooltip>
-  ) : (
-    <Tooltip title={creatorName}>
-      <div className="user-icon-wrapper">
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  return (
+    <div
+      className="user-icon-wrapper"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      {creatorImageUrl ? (
+        <img className="user-icon" src={creatorImageUrl} alt={creatorName} />
+      ) : (
         <UserOutlined className="user-icon" />
-      </div>
-    </Tooltip>
+      )}
+      {showTooltip && (
+        <div className="custom-tooltip">
+          <div className="custom-tooltip-inner">{creatorName}</div>
+        </div>
+      )}
+    </div>
   );
 };

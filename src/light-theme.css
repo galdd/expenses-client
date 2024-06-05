@@ -64,7 +64,9 @@
 
   /* badges */
   --badge-primary-background: #62B16A1A;
-  --badge-secondary-background: #EDF2FC;
+  --badge-secondary-background: #ff00001a;
   --badge-primary-text: #62B16A;
-  --badge-secondary-text: #191919;
+  --badge-secondary-text: #ff0000;
 }
+
+

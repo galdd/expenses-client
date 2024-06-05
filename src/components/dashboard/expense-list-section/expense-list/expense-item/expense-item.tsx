@@ -60,7 +60,7 @@ export const ExpenseItem: React.FC<ExpenseItemProps> = ({
   };
 
   return (
-    <div className={`expense-item`}>
+    <div className={`expense-item`} key={expense._id}>
       <UserPicture
         creatorImageUrl={expense.creator.photo}
         creatorName={expense.creator.name}
@@ -81,17 +81,16 @@ export const ExpenseItem: React.FC<ExpenseItemProps> = ({
         onOk={handleEditOk}
         onCancel={handleEditCancel}
         footer={[
-          <div className="edit-expense-modal">
-            <div>
+          <div className="edit-expense-modal" key="footer-buttons">
+            <div key="delete-button">
               <Button key="delete" danger onClick={handleDelete}>
                 Delete
               </Button>
             </div>
-            <div>
+            <div key="action-buttons">
               <Button key="cancel" onClick={handleEditCancel}>
                 Cancel
               </Button>
-
               <Button key="submit" type="primary" onClick={handleEditOk}>
                 Save
               </Button>
@@ -118,11 +117,14 @@ export const ExpenseItem: React.FC<ExpenseItemProps> = ({
           placeholder="Price"
         />
         <Input
-          value={editedExpense.cause}
+          value={editedExpense.expenseDescription}
           onChange={(e) =>
-            setEditedExpense({ ...editedExpense, cause: e.target.value })
+            setEditedExpense({
+              ...editedExpense,
+              expenseDescription: e.target.value,
+            })
           }
-          placeholder="Cause"
+          placeholder="Expense Description"
         />
       </Modal>
     </div>

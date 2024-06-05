@@ -5,7 +5,7 @@ export type Expense = {
   creatorImageUrl: string;
   name: string;
   price: number;
-  cause: string;
+  expenseDescription: string;
   date: string;
 };
 export interface ExpenseWithListId extends Omit<Expense, "_id"> {

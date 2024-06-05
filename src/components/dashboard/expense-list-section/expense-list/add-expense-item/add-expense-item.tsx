@@ -12,7 +12,8 @@ const AddExpenseItem: React.FC<AddExpenseItemProps> = ({ listId }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expenseName, setExpenseName] = useState("");
   const [expensePrice, setExpensePrice] = useState(0);
-  const [expenseCause, setExpenseCause] = useState("");
+  const [expenseexpenseDescription, setExpenseexpenseDescription] =
+    useState("");
   const { addExpenseMutation } = useExpenses();
 
   const showModal = () => {
@@ -24,7 +25,7 @@ const AddExpenseItem: React.FC<AddExpenseItemProps> = ({ listId }) => {
       {
         name: expenseName,
         price: expensePrice,
-        cause: expenseCause,
+        expenseDescription: expenseexpenseDescription,
         date: new Date().toISOString(),
         listId,
       },
@@ -34,7 +35,7 @@ const AddExpenseItem: React.FC<AddExpenseItemProps> = ({ listId }) => {
           setIsModalVisible(false);
           setExpenseName("");
           setExpensePrice(0);
-          setExpenseCause("");
+          setExpenseexpenseDescription("");
         },
         onError: (error) => {
           message.error(`Failed to add expense: ${error.message}`);
@@ -91,9 +92,9 @@ const AddExpenseItem: React.FC<AddExpenseItemProps> = ({ listId }) => {
           placeholder="Price"
         />
         <Input
-          value={expenseCause}
-          onChange={(e) => setExpenseCause(e.target.value)}
-          placeholder="Cause"
+          value={expenseexpenseDescription}
+          onChange={(e) => setExpenseexpenseDescription(e.target.value)}
+          placeholder="expenseDescription"
         />
       </Modal>
     </>

@@ -1,4 +1,4 @@
-.notification-expense {
+.notification-list {
     align-items: center;
     display: flex;
     gap: 1.25rem;
@@ -47,9 +47,4 @@
     font: 700 0.75rem Nunito, sans-serif;
     padding: 0.625rem 1.0625rem;
     text-align: center;
-}
-
-.notification-price.remove {
-    background-color: var(--badge-secondary-background);
-    color: var(--badge-secondary-text);
 }

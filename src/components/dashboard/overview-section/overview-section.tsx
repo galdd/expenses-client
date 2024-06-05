@@ -10,9 +10,29 @@ import { StatCard } from "./stat-card";
 import { Notification } from "./notification";
 import "./overview-section.css";
 import { DataLoader } from "../../shared";
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+import { NotificationType } from "../../../@types/notification-props";
+
+const socket = io("http://localhost:1337");
 
 export const OverviewSection = () => {
   const { data: stats, isLoading, error } = useStats();
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
+
+  useEffect(() => {
+    socket.on("notification", (data: NotificationType) => {
+      setNotifications((prevNotifications) => [...prevNotifications, data]);
+    });
+
+    return () => {
+      socket.off("notification");
+    };
+  }, []);
+
+  const clearNotifications = () => {
+    setNotifications([]);
+  };
 
   return (
     <DataLoader isLoading={isLoading} error={error}>
@@ -50,8 +70,8 @@ export const OverviewSection = () => {
           />
         </div>
         <div className="notification-card">
-          <NotificationHeader />
-          <Notification />
+          <NotificationHeader clearNotifications={clearNotifications} />
+          <Notification notifications={notifications} />
         </div>
       </div>
     </DataLoader>

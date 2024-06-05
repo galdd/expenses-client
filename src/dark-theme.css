@@ -63,8 +63,8 @@
   --icon-background-muted: #86868666;
 
   /* badges */
-  --badge-primary-background: #62B16A1A;
-  --badge-secondary-background: #EDF2FC;
+  --badge-primary-background: #b162621a;
+  --badge-secondary-background: #e30d0d1a;
   --badge-primary-text: #62B16A;
-  --badge-secondary-text: #191919;
+  --badge-secondary-text: #e30d0d;
 }
