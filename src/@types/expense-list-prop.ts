@@ -25,3 +25,16 @@ export interface ExpenseListsResponse {
 export interface AddExpenseListVariables {
   name: string;
 }
+
+export interface UpdateExpenseListVariables {
+  id: string;
+  name: string;
+}
+
+export interface ExpenseListHeaderProps {
+  listId: string;
+  listName: string;
+  expenseTotal: string;
+  onDelete: (id: string) => void;
+  onEdit: (id: string, name: string) => void;
+}

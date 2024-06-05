@@ -7,14 +7,15 @@ import {
   UseMutationResult,
   useQueryClient,
 } from "@tanstack/react-query";
-import { apiFetch } from "../../../api";
 
-import { SortOrder } from "../../../@types/sortOrderTypes";
 import {
   ExpenseListsResponse,
-  AddExpenseListVariables,
   ExpenseListType,
-} from "../../../@types/expense-list-prop";
+  AddExpenseListVariables,
+  UpdateExpenseListVariables,
+} from "../../@types/expense-list-prop";
+import { apiFetch } from "../../api";
+import { SortOrder } from "../../@types/sortOrderTypes";
 
 const fetchExpenseLists = async (
   token: string,
@@ -65,6 +66,30 @@ const addExpenseList = async (
   return data as ExpenseListType;
 };
 
+const updateExpenseList = async (
+  token: string,
+  id: string,
+  name: string
+): Promise<ExpenseListType> => {
+  const init = {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name }),
+  };
+
+  const response = await apiFetch(`/api/expenses-list/${id}`, init);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data as ExpenseListType;
+};
+
 export const useExpenseLists = (
   offset: number,
   limit: number,
@@ -103,6 +128,25 @@ export const useAddExpenseList = (): UseMutationResult<
     mutationFn: async ({ name }: AddExpenseListVariables) => {
       const token = await getAccessTokenSilently();
       return addExpenseList(token, name);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["expenseLists"] });
+    },
+  });
+};
+
+export const useUpdateExpenseList = (): UseMutationResult<
+  ExpenseListType,
+  Error,
+  UpdateExpenseListVariables
+> => {
+  const queryClient = useQueryClient();
+  const { getAccessTokenSilently } = useAuth0();
+
+  return useMutation<ExpenseListType, Error, UpdateExpenseListVariables>({
+    mutationFn: async ({ id, name }: UpdateExpenseListVariables) => {
+      const token = await getAccessTokenSilently();
+      return updateExpenseList(token, id, name);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenseLists"] });

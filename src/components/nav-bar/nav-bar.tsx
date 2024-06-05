@@ -166,7 +166,7 @@ export const NavBar = ({ setIsUserAuthenticated }: NavBarProps) => {
       </div>
       <Modal
         title="Register"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleRegister}
         onCancel={() => setIsModalVisible(false)}
         footer={[

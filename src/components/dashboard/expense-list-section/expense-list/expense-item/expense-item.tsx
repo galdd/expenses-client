@@ -2,9 +2,63 @@ import { EditOutlined } from "@ant-design/icons";
 import { Expense } from "../../../../../@types/expense";
 import { UserPicture } from "../../../../shared";
 import { formatDate, formatTime } from "../../../../utilities/format-time";
+import { useState } from "react";
+import { Modal, Button, Input, message } from "antd";
+import { useExpenses } from "../../../../hooks/useExpenses";
 import "./expense-item.css";
 
-export const ExpenseItem = ({ expense }: { expense: Expense }) => {
+interface ExpenseItemProps {
+  expense: Expense;
+  listId: string;
+}
+
+export const ExpenseItem: React.FC<ExpenseItemProps> = ({
+  expense,
+  listId,
+}) => {
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editedExpense, setEditedExpense] = useState(expense);
+
+  const { updateExpenseMutation, deleteExpenseMutation } = useExpenses();
+
+  const showEditModal = () => {
+    setIsEditModalVisible(true);
+  };
+
+  const handleEditOk = () => {
+    updateExpenseMutation.mutate(
+      { expenseId: expense._id, expenseData: { ...editedExpense, listId } },
+      {
+        onSuccess: () => {
+          message.success("Expense updated successfully");
+          setIsEditModalVisible(false);
+        },
+        onError: (error) => {
+          message.error(`Failed to update expense: ${error.message}`);
+        },
+      }
+    );
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalVisible(false);
+  };
+
+  const handleDelete = () => {
+    deleteExpenseMutation.mutate(
+      { expenseId: expense._id, listId },
+      {
+        onSuccess: () => {
+          message.success("Expense deleted successfully");
+          setIsEditModalVisible(false);
+        },
+        onError: (error) => {
+          message.error(`Failed to delete expense: ${error.message}`);
+        },
+      }
+    );
+  };
+
   return (
     <div className={`expense-item`}>
       <UserPicture
@@ -19,7 +73,60 @@ export const ExpenseItem = ({ expense }: { expense: Expense }) => {
         <div className="expense-date">{formatDate(expense.createdAt)}</div>
         <div className="expense-time">{formatTime(expense.createdAt)}</div>
       </div>
-      <EditOutlined className="edit-icon" />
+      <EditOutlined className="edit-icon" onClick={showEditModal} />
+
+      <Modal
+        title="Edit Expense"
+        open={isEditModalVisible}
+        onOk={handleEditOk}
+        onCancel={handleEditCancel}
+        footer={[
+          <div className="edit-expense-modal">
+            <div>
+              <Button key="delete" danger onClick={handleDelete}>
+                Delete
+              </Button>
+            </div>
+            <div>
+              <Button key="cancel" onClick={handleEditCancel}>
+                Cancel
+              </Button>
+
+              <Button key="submit" type="primary" onClick={handleEditOk}>
+                Save
+              </Button>
+            </div>
+          </div>,
+        ]}
+      >
+        <Input
+          value={editedExpense.name}
+          onChange={(e) =>
+            setEditedExpense({ ...editedExpense, name: e.target.value })
+          }
+          placeholder="Expense Name"
+        />
+        <Input
+          type="number"
+          value={editedExpense.price}
+          onChange={(e) =>
+            setEditedExpense({
+              ...editedExpense,
+              price: parseFloat(e.target.value),
+            })
+          }
+          placeholder="Price"
+        />
+        <Input
+          value={editedExpense.cause}
+          onChange={(e) =>
+            setEditedExpense({ ...editedExpense, cause: e.target.value })
+          }
+          placeholder="Cause"
+        />
+      </Modal>
     </div>
   );
 };
+
+export default ExpenseItem;

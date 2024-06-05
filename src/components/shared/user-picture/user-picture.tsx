@@ -1,6 +1,7 @@
 import { Tooltip } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import "./user-picture.css";
+import {} from "react";
 
 type Props = {
   creatorImageUrl?: string;

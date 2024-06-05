@@ -16,19 +16,16 @@ export const Auth0ProviderWithNavigate = ({
   const redirectUri = window.location.origin;
   const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 
-console.log("domain", domain, "clientId", clientId, "redirectUri", redirectUri, "audience", audience);
+  // console.log("domain", domain, "clientId", clientId, "redirectUri", redirectUri, "audience", audience);
 
-  
   const onRedirectCallback = (appState?: AppState) => {
     navigate(appState?.returnTo || window.location.pathname);
   };
 
-  if (!(domain && clientId && redirectUri&&audience )) {
+  if (!(domain && clientId && redirectUri && audience)) {
     console.log("return null");
     return null;
   }
-
-  
 
   return (
     <Auth0Provider
@@ -36,9 +33,8 @@ console.log("domain", domain, "clientId", clientId, "redirectUri", redirectUri, 
       clientId={clientId}
       authorizationParams={{
         redirect_uri: redirectUri,
-        audience:audience,
+        audience: audience,
       }}
-      
       onRedirectCallback={onRedirectCallback}
     >
       {children}

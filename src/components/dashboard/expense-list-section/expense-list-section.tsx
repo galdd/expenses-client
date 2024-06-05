@@ -5,12 +5,13 @@ import { ExpenseListType } from "../../../@types/expense-list-prop";
 import { DataLoader } from "../../shared";
 import ExpenseListToolbar from "./expense-list-toolbar/expense-list-toolbar";
 import { ExpenseList } from "./expense-list/expense-list";
-import {
-  useExpenseLists,
-  useDeleteExpenseList,
-  useAddExpenseList,
-} from "./useExpenseLists";
 import "./expense-list-section.css";
+import {
+  useAddExpenseList,
+  useDeleteExpenseList,
+  useExpenseLists,
+  useUpdateExpenseList,
+} from "../../hooks/useExpenseLists";
 
 export const ExpenseListSection = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
@@ -23,6 +24,7 @@ export const ExpenseListSection = () => {
   } = useExpenseLists(offset, 5, sortOrder);
   const { mutate: deleteList } = useDeleteExpenseList();
   const { mutate: addExpenseList } = useAddExpenseList();
+  const { mutate: updateExpenseList } = useUpdateExpenseList();
 
   const updateLists = useCallback(() => {
     if (section?.data) {
@@ -50,6 +52,22 @@ export const ExpenseListSection = () => {
         message.error(`Failed to delete list: ${error.message}`);
       },
     });
+  };
+
+  const handleEdit = (listId: string, name: string) => {
+    updateExpenseList(
+      { id: listId, name },
+      {
+        onSuccess: () => {
+          message.success("List updated successfully");
+          setOffset(0);
+          setLists([]);
+        },
+        onError: (error) => {
+          message.error(`Failed to update list: ${error.message}`);
+        },
+      }
+    );
   };
 
   const toggleSortOrder = () => {
@@ -95,7 +113,12 @@ export const ExpenseListSection = () => {
             onAddList={handleAddList}
           />
           {lists.map((list) => (
-            <ExpenseList key={list._id} list={list} onDelete={handleDelete} />
+            <ExpenseList
+              key={list._id}
+              list={list}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+            />
           ))}
           {lists.length < (section?.total || 0) && (
             <button onClick={loadMore} className="load-more-button">

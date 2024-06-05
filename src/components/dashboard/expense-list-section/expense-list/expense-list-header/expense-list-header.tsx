@@ -1,23 +1,51 @@
-import { Dropdown, message } from "antd";
+import { useState } from "react";
+import { Dropdown, Modal, Input, message } from "antd";
 import {
   UserOutlined,
   SettingOutlined,
   DeleteFilled,
+  EditOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
-import "./expense-list-header.css";
 
-export const ExpenseListHeader = ({
+import "./expense-list-header.css";
+import { ExpenseListHeaderProps } from "../../../../../@types/expense-list-prop";
+import { useUpdateExpenseList } from "../../../../hooks/useExpenseLists";
+
+export const ExpenseListHeader: React.FC<ExpenseListHeaderProps> = ({
   listId,
   listName,
   expenseTotal,
   onDelete,
-}: {
-  listId: string;
-  listName: string;
-  expenseTotal: string;
-  onDelete: (id: string) => void;
 }) => {
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [newListName, setNewListName] = useState(listName);
+
+  const { mutate: updateExpenseList } = useUpdateExpenseList();
+
+  const handleEdit = () => {
+    setIsEditModalVisible(true);
+  };
+
+  const handleEditOk = () => {
+    updateExpenseList(
+      { id: listId, name: newListName },
+      {
+        onSuccess: () => {
+          message.success("List updated successfully");
+          setIsEditModalVisible(false);
+        },
+        onError: (error) => {
+          message.error(`Failed to update list: ${error.message}`);
+        },
+      }
+    );
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalVisible(false);
+  };
+
   const items = [
     {
       key: "invite",
@@ -28,6 +56,19 @@ export const ExpenseListHeader = ({
       key: "permissions",
       icon: <SettingOutlined />,
       label: "Permissions",
+    },
+    {
+      key: "edit",
+      icon: <EditOutlined />,
+      label: "Edit List",
+      className: "menu-edit",
+      onClick: () => {
+        if (!listId) {
+          message.error("Invalid list ID");
+          return;
+        }
+        handleEdit();
+      },
     },
     {
       key: "delete",
@@ -62,6 +103,18 @@ export const ExpenseListHeader = ({
           </Dropdown>
         </div>
       </div>
+
+      <Modal
+        title="Edit List Name"
+        open={isEditModalVisible}
+        onOk={handleEditOk}
+        onCancel={handleEditCancel}
+      >
+        <Input
+          value={newListName}
+          onChange={(e) => setNewListName(e.target.value)}
+        />
+      </Modal>
     </div>
   );
 };

@@ -9,10 +9,11 @@ import "./expense-list.css";
 interface ExpenseListProps {
   list: ExpenseListType;
   onDelete: (id: string) => void;
+  onEdit: (id: string, name: string) => void;
 }
 
 export const ExpenseList: React.FC<ExpenseListProps> = React.memo(
-  ({ list, onDelete }) => {
+  ({ list, onDelete, onEdit }) => {
     return (
       <div className="expenses-list">
         <ExpenseListHeader
@@ -20,14 +21,19 @@ export const ExpenseList: React.FC<ExpenseListProps> = React.memo(
           listName={list.name}
           expenseTotal={list.totalExpenses.toFixed(2)}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
         <ExpensesHeader />
         <div className="separated-expenses-list">
           {list.expenses.map((expense) => (
-            <ExpenseItem key={expense._id} expense={expense} />
+            <ExpenseItem
+              key={expense._id}
+              expense={expense}
+              listId={list._id}
+            />
           ))}
         </div>
-        <AddExpenseItem />
+        <AddExpenseItem listId={list._id} />
       </div>
     );
   }

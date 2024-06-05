@@ -6,4 +6,8 @@ export type Expense = {
   name: string;
   price: number;
   cause: string;
+  date: string;
 };
+export interface ExpenseWithListId extends Omit<Expense, "_id"> {
+  listId?: string;
+}

@@ -2,7 +2,10 @@ import { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { Modal, Input, Form } from "antd";
 import "./expense-list-toolbar.css";
-import { TabProps, ExpenseListToolbarProps } from "../../../../@types/toolbar-props";
+import {
+  TabProps,
+  ExpenseListToolbarProps,
+} from "../../../../@types/toolbar-props";
 
 const Tab = ({ label, onClick, isActive }: TabProps) => (
   <div className={`tab ${isActive ? "active" : ""}`} onClick={onClick}>
@@ -65,7 +68,7 @@ const ExpenseListToolbar = ({
 
       <Modal
         title="Add New List"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleAddList}
         onCancel={() => setIsModalVisible(false)}
       >
