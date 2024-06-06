@@ -14,7 +14,10 @@ export const NotificationHeader = ({ clearNotifications }: Props) => {
         <h2 className="notifications-title">Notifications</h2>
       </div>
       <div>
-        <Button onClick={clearNotifications} className="notification-clear-button">
+        <Button
+          onClick={clearNotifications}
+          className="notification-clear-button"
+        >
           Clear Notifications
         </Button>
       </div>

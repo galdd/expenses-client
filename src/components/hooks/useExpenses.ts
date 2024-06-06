@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Expense, ExpenseWithListId } from "../../@types/expense";
+import { Expense, ExpenseWithListId, NewExpense } from "../../@types/expense";
 import { apiFetch } from "../../api";
 
 const addExpense = async (
   token: string,
-  expenseData: ExpenseWithListId
+  expenseData: Omit<NewExpense, "creator" | "creatorImageUrl">
 ): Promise<Expense> => {
   const init = {
     method: "POST",
@@ -30,7 +30,7 @@ const addExpense = async (
 const updateExpense = async (
   token: string,
   expenseId: string,
-  expenseData: ExpenseWithListId
+  expenseData: Omit<ExpenseWithListId, "creator" | "creatorImageUrl">
 ): Promise<Expense> => {
   const init = {
     method: "PUT",
@@ -90,8 +90,8 @@ export const useExpenses = () => {
     })();
   }, [getAccessTokenSilently]);
 
-  const addExpenseMutation = useMutation<Expense, Error, ExpenseWithListId>({
-    mutationFn: async (expenseData: ExpenseWithListId) => {
+  const addExpenseMutation = useMutation<Expense, Error, NewExpense>({
+    mutationFn: async (expenseData: NewExpense) => {
       if (!token) throw new Error("No access token");
       return addExpense(token, expenseData);
     },
@@ -103,7 +103,10 @@ export const useExpenses = () => {
   const updateExpenseMutation = useMutation<
     Expense,
     Error,
-    { expenseId: string; expenseData: ExpenseWithListId }
+    {
+      expenseId: string;
+      expenseData: Omit<ExpenseWithListId, "creator" | "creatorImageUrl">;
+    }
   >({
     mutationFn: async ({ expenseId, expenseData }) => {
       if (!token) throw new Error("No access token");

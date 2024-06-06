@@ -8,34 +8,34 @@ import { NotificationHeader } from "./notification/notification-header";
 import { useStats } from "./useStats";
 import { StatCard } from "./stat-card";
 import { Notification } from "./notification";
-import "./overview-section.css";
 import { DataLoader } from "../../shared";
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
+import { useNotifications } from "../../hooks/useNotifications";
+import { useSocketNotifications } from "../../hooks/useSocketNotifications";
+import "./overview-section.css";
 import { NotificationType } from "../../../@types/notification-props";
-
-const socket = io("http://localhost:1337");
 
 export const OverviewSection = () => {
   const { data: stats, isLoading, error } = useStats();
-  const [notifications, setNotifications] = useState<NotificationType[]>([]);
+  const {
+    data: notifications,
+    isLoading: isNotificationsLoading,
+    error: notificationsError,
+    setNotifications,
+  } = useNotifications();
 
-  useEffect(() => {
-    socket.on("notification", (data: NotificationType) => {
-      setNotifications((prevNotifications) => [...prevNotifications, data]);
-    });
-
-    return () => {
-      socket.off("notification");
-    };
-  }, []);
+  useSocketNotifications(
+    setNotifications as React.Dispatch<React.SetStateAction<NotificationType[]>>
+  );
 
   const clearNotifications = () => {
     setNotifications([]);
   };
 
   return (
-    <DataLoader isLoading={isLoading} error={error}>
+    <DataLoader
+      isLoading={isLoading || isNotificationsLoading}
+      error={error || notificationsError}
+    >
       <DataLoader.Loading> </DataLoader.Loading>
       <DataLoader.Error> </DataLoader.Error>
       <div className="overview-section">
@@ -71,7 +71,7 @@ export const OverviewSection = () => {
         </div>
         <div className="notification-card">
           <NotificationHeader clearNotifications={clearNotifications} />
-          <Notification notifications={notifications} />
+          <Notification notifications={notifications || []} />
         </div>
       </div>
     </DataLoader>
