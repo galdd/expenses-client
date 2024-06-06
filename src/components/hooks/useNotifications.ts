@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "../../api";
 import { NotificationType } from "../../@types/notification-props";
 
@@ -24,10 +24,26 @@ const fetchNotifications = async (
   return data;
 };
 
+const clearNotificationsOnServer = async (token: string) => {
+  const init = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = await apiFetch("/api/notifications/clear", init);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+};
+
 export const useNotifications = () => {
+  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(null);
   const { getAccessTokenSilently } = useAuth0();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     (async () => {
@@ -46,9 +62,22 @@ export const useNotifications = () => {
     enabled: !!token,
   });
 
-  const setNotifications = (newNotifications: NotificationType[]) => {
-    queryClient.setQueryData(["notifications", token], newNotifications);
-  };
+  const clearNotificationsMutation = useMutation<void, Error>({
+    mutationFn: () => clearNotificationsOnServer(token!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
 
-  return { data, isLoading, error, setNotifications };
+  return {
+    data,
+    isLoading,
+    error,
+    setNotifications: (
+      newNotifications: React.SetStateAction<NotificationType[]>
+    ) => {
+      queryClient.setQueryData(["notifications", token], newNotifications);
+    },
+    clearNotifications: clearNotificationsMutation.mutate,
+  };
 };

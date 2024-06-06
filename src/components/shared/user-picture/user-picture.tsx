@@ -17,7 +17,12 @@ export const UserPicture = ({ creatorImageUrl, creatorName }: Props) => {
       onMouseLeave={() => setShowTooltip(false)}
     >
       {creatorImageUrl ? (
-        <img className="user-icon" src={creatorImageUrl} alt={creatorName} />
+        <img
+          className="user-icon"
+          src={creatorImageUrl}
+          alt={creatorName}
+          referrerPolicy="no-referrer"
+        />
       ) : (
         <UserOutlined className="user-icon" />
       )}

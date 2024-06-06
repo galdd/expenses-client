@@ -12,7 +12,6 @@ import { DataLoader } from "../../shared";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useSocketNotifications } from "../../hooks/useSocketNotifications";
 import "./overview-section.css";
-import { NotificationType } from "../../../@types/notification-props";
 
 export const OverviewSection = () => {
   const { data: stats, isLoading, error } = useStats();
@@ -21,15 +20,9 @@ export const OverviewSection = () => {
     isLoading: isNotificationsLoading,
     error: notificationsError,
     setNotifications,
+    clearNotifications,
   } = useNotifications();
-
-  useSocketNotifications(
-    setNotifications as React.Dispatch<React.SetStateAction<NotificationType[]>>
-  );
-
-  const clearNotifications = () => {
-    setNotifications([]);
-  };
+  useSocketNotifications(setNotifications);
 
   return (
     <DataLoader

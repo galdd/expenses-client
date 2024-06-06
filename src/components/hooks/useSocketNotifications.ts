@@ -13,8 +13,13 @@ export const useSocketNotifications = (
       setNotifications((prevNotifications) => [...prevNotifications, data]);
     });
 
+    socket.on("clear_notifications", () => {
+      setNotifications([]);
+    });
+
     return () => {
       socket.off("notification");
+      socket.off("clear_notifications");
     };
   }, [setNotifications]);
 
