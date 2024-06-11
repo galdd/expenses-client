@@ -24,7 +24,7 @@ const fetchNotifications = async (
   return data;
 };
 
-const clearNotificationsOnServer = async (token: string) => {
+const clearNotificationsOnServer = async (token: string): Promise<void> => {
   const init = {
     method: "POST",
     headers: {
@@ -41,9 +41,9 @@ const clearNotificationsOnServer = async (token: string) => {
 };
 
 export const useNotifications = () => {
-  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(null);
   const { getAccessTokenSilently } = useAuth0();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     (async () => {
@@ -56,26 +56,30 @@ export const useNotifications = () => {
     })();
   }, [getAccessTokenSilently]);
 
-  const { data, isLoading, error } = useQuery<NotificationType[], Error>({
+  const query = useQuery<NotificationType[], Error>({
     queryKey: ["notifications", token],
     queryFn: () => fetchNotifications(token!),
     enabled: !!token,
   });
 
-  const clearNotificationsMutation = useMutation<void, Error>({
+  const clearNotificationsMutation = useMutation({
     mutationFn: () => clearNotificationsOnServer(token!),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"]});
+      queryClient.setQueryData(["notifications", token], []);
     },
   });
 
+  const setNotifications = (value: React.SetStateAction<NotificationType[]>) => {
+    queryClient.setQueryData(["notifications", token], value);
+  };
+
+  const clearNotifications = () => {
+    clearNotificationsMutation.mutate();
+  };
+
   return {
-    data,
-    isLoading,
-    error,
-    setNotifications: (newNotifications: React.SetStateAction<NotificationType[]>) => {
-      queryClient.setQueryData(["notifications", token], newNotifications);
-    },
-    clearNotifications: clearNotificationsMutation.mutate,
+    ...query,
+    setNotifications,
+    clearNotifications,
   };
 };

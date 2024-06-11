@@ -22,7 +22,7 @@ export const OverviewSection = () => {
     setNotifications,
     clearNotifications,
   } = useNotifications();
-  useSocketNotifications(setNotifications);
+  useSocketNotifications(setNotifications, clearNotifications);
 
   return (
     <DataLoader

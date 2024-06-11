@@ -5,7 +5,8 @@ import { NotificationType } from "../../@types/notification-props";
 const socket = io("http://localhost:1337");
 
 export const useSocketNotifications = (
-  setNotifications: React.Dispatch<React.SetStateAction<NotificationType[]>>
+  setNotifications: React.Dispatch<React.SetStateAction<NotificationType[]>>,
+  clearNotifications: () => void
 ) => {
   useEffect(() => {
     socket.on("notification", (data: NotificationType) => {
@@ -13,10 +14,16 @@ export const useSocketNotifications = (
       setNotifications((prevNotifications) => [...prevNotifications, data]);
     });
 
+    socket.on("clear_notifications", () => {
+      console.log("Received clear notifications signal from socket");
+      clearNotifications();
+    });
+
     return () => {
       socket.off("notification");
+      socket.off("clear_notifications");
     };
-  }, [setNotifications]);
+  }, [setNotifications, clearNotifications]);
 
   return { socket };
 };

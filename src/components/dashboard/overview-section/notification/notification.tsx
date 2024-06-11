@@ -8,31 +8,37 @@ interface NotificationProps {
   notifications: NotificationType[];
 }
 
+const hasNameProperty = (obj: any): obj is { name: string } => {
+  return obj && typeof obj === "object" && "name" in obj;
+};
+
 export const Notification = ({ notifications }: NotificationProps) => {
   console.log("Rendering notifications:", notifications);
   return (
     <div className="notifications-container">
       {notifications.map((notification, index) => {
-        const key = `${notification.type}-${notification.props?.id || notification.id}-${index}`;
+        const key = `${notification.type}-${notification.id}-${index}`;
+        const {
+          id,
+          avatarSrc,
+          expenseDescription,
+          listName,
+          price,
+          timestamp,
+          action,
+          creatorName,
+        } = notification.props || notification;
 
-        if (notification.type === "expense" && notification.props) {
-          const {
-            id,
-            avatarSrc,
-            expenseDescription,
-            listName,
-            price,
-            timestamp,
-            action,
-            creatorName,
-          } = notification.props;
+        if (notification.type === "expense") {
           return (
             <div className="notification-item" key={key}>
               <NotificationExpense
                 id={id}
                 avatarSrc={avatarSrc}
                 expenseDescription={expenseDescription}
-                listName={typeof listName === "object" ? (listName as any).name : listName}
+                listName={
+                  hasNameProperty(listName) ? listName.name : listName
+                }
                 price={price}
                 timestamp={timestamp}
                 action={action}
@@ -40,28 +46,30 @@ export const Notification = ({ notifications }: NotificationProps) => {
               />
             </div>
           );
-        } else if (notification.type === "invitation" && notification.props) {
-          const { id, avatarSrc, listName, responses, timestamp, creatorName } = notification.props;
+        } else if (notification.type === "invitation") {
           return (
             <div className="notification-item" key={key}>
               <NotificationInvitation
                 id={id}
                 avatarSrc={avatarSrc}
-                listName={typeof listName === "object" ? (listName as any).name : listName}
-                responses={responses}
+                listName={
+                  hasNameProperty(listName) ? listName.name : listName
+                }
+                responses={notification.responses}
                 timestamp={timestamp}
                 creatorName={creatorName}
               />
             </div>
           );
-        } else if (notification.type === "list" && notification.props) {
-          const { id, avatarSrc, listName, timestamp, action, creatorName } = notification.props;
+        } else if (notification.type === "list") {
           return (
             <div className="notification-item" key={key}>
               <NotificationList
                 id={id}
                 avatarSrc={avatarSrc}
-                listName={typeof listName === "object" ? (listName as any).name : listName}
+                listName={
+                  hasNameProperty(listName) ? listName.name : listName
+                }
                 timestamp={timestamp}
                 action={action}
                 creatorName={creatorName}
