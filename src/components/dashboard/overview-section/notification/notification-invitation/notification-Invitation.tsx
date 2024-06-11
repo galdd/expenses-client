@@ -2,7 +2,7 @@ import { Tooltip } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { UserPicture } from "../../../../shared";
 import { InvitationNotificationProps } from "../../../../../@types/notification-props";
-import "./notification-invitation.css";
+import "./notification-Invitation.css";
 
 export function NotificationInvitation({
   avatarSrc,

@@ -1,1 +1,1 @@
-export * from "./notification-invitation";
+export * from "./notification-Invitation";

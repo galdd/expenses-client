@@ -65,7 +65,7 @@ export const useNotifications = () => {
   const clearNotificationsMutation = useMutation<void, Error>({
     mutationFn: () => clearNotificationsOnServer(token!),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"]});
     },
   });
 
@@ -73,9 +73,7 @@ export const useNotifications = () => {
     data,
     isLoading,
     error,
-    setNotifications: (
-      newNotifications: React.SetStateAction<NotificationType[]>
-    ) => {
+    setNotifications: (newNotifications: React.SetStateAction<NotificationType[]>) => {
       queryClient.setQueryData(["notifications", token], newNotifications);
     },
     clearNotifications: clearNotificationsMutation.mutate,
