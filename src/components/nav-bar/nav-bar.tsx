@@ -7,11 +7,12 @@ import {
   MoreOutlined,
 } from "@ant-design/icons";
 import { useAuth0 } from "@auth0/auth0-react";
+
+import "./nav-bar.css";
+import { NavBarProps } from "../../@types/nav-bar-props";
 import { apiFetch } from "../../api";
 import { ConnectionHealth } from "../connection-health";
 import { ThemeSwitcher } from "../theme-switcher";
-import { NavBarProps } from "../../@types/nav-bar-props";
-import "./nav-bar.css";
 
 export const NavBar = ({ setIsUserAuthenticated }: NavBarProps) => {
   const {
