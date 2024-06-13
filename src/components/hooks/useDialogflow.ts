@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { useAuth0 } from "@auth0/auth0-react";
+import { apiFetch } from "../../api";
 
 interface DialogFlowResponse {
   response: string;
@@ -7,11 +9,12 @@ interface DialogFlowResponse {
   parameters: any;
 }
 
-const sendToDialogFlow = async (message: string): Promise<DialogFlowResponse> => {
-  const response = await fetch("http://localhost:1337/dialogflow", {
+const sendToDialogFlow = async (message: string, token: string): Promise<DialogFlowResponse> => {
+  const response = await apiFetch("/api/dialogflow", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ message }),
   });
@@ -25,38 +28,42 @@ const sendToDialogFlow = async (message: string): Promise<DialogFlowResponse> =>
 };
 
 export const useDialogFlow = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<{ text: string; sender: string }[]>([]);
+  const { getAccessTokenSilently } = useAuth0();
 
-  const mutation: UseMutationResult<DialogFlowResponse, Error, string> = useMutation(
-    sendToDialogFlow,
-    {
-      onSuccess: (data) => {
+  const mutation = useMutation({
+    mutationFn: async (message: string) => {
+      const token = await getAccessTokenSilently();
+      return sendToDialogFlow(message, token);
+    },
+    onSuccess: (data) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: data.response, sender: "AI" },
+      ]);
+
+      if (data.intent === "create_list" && data.parameters.listName) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          `AI: ${data.response}`,
+          { text: `List "${data.parameters.listName}" created successfully.`, sender: "AI" },
         ]);
-
-        if (data.intent === "create_list") {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            `List "${data.parameters.listName}" created successfully.`,
-          ]);
-        }
-      },
-      onError: (error) => {
-        console.error("Error:", error);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          "AI: Sorry, something went wrong.",
-        ]);
-      },
-    }
-  );
+      }
+    },
+    onError: (error) => {
+      console.error("Error:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: "AI: Sorry, something went wrong.", sender: "AI" },
+      ]);
+    },
+  });
 
   const sendMessage = (message: string) => {
-    setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
+    setMessages((prevMessages) => [...prevMessages, { text: `You: ${message}`, sender: "User" }]);
     mutation.mutate(message);
   };
 
   return { messages, sendMessage };
 };
+
+export default useDialogFlow;

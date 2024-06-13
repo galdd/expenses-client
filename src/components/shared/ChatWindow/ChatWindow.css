@@ -9,14 +9,8 @@
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  z-index: 1000; /* z-index גבוה כדי להופיע מעל הכל */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.chat-window.minimized {
-  height: 50px;
-  width: 50px;
-  border-radius: 50%;
 }
 
 .chat-header {
@@ -27,22 +21,25 @@
   border-top-right-radius: 8px;
   text-align: center;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-}
-
-.chat-header .chat-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
 }
 
 .chat-body {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
+}
+
+.chat-message {
+  margin: 5px 0;
+}
+
+.chat-message.user {
+  text-align: right;
+}
+
+.chat-message.ai {
+  text-align: left;
+  color: blue;
 }
 
 .chat-footer {

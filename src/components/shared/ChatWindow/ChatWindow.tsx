@@ -1,38 +1,42 @@
 import React, { useState, useEffect } from "react";
 import "./ChatWindow.css";
-import { useDialogFlow } from "../../hooks/useDialogflow";
+import useDialogFlow from "../../hooks/useDialogflow";
 
-
-const ChatWindow: React.FC = () => {
+const ChatWindow = () => {
   const { messages, sendMessage } = useDialogFlow();
-  const [input, setInput] = useState("");
+  const [inputMessage, setInputMessage] = useState("");
+
+  const handleSend = async () => {
+    if (inputMessage.trim() === "") return;
+    sendMessage(inputMessage);
+    setInputMessage("");
+  };
 
   useEffect(() => {
-    // Send initial message
-    sendMessage("hello, I am ofir, how can I help you today?");
-  }, [sendMessage]);
-
-  const handleSend = () => {
-    if (input.trim()) {
-      sendMessage(input.trim());
-      setInput("");
-    }
-  };
+    setInputMessage("");
+  }, [messages]);
 
   return (
     <div className="chat-window">
       <div className="chat-header">Chat</div>
       <div className="chat-body">
-        {messages && messages.map((message, index) => (
-          <div key={index}>{message}</div>
+        {messages.map((msg, index) => (
+          <div key={index} className={`chat-message ${msg.sender.toLowerCase()}`}>
+            {msg.text}
+          </div>
         ))}
       </div>
       <div className="chat-footer">
         <input
           type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message..."
+          placeholder="Type your message..."
+          value={inputMessage}
+          onChange={(e) => setInputMessage(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              handleSend();
+            }
+          }}
         />
         <button onClick={handleSend}>Send</button>
       </div>
