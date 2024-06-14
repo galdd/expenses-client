@@ -1,3 +1,4 @@
+/* ChatWindow.css */
 .chat-window {
   position: fixed;
   bottom: 20px;
@@ -9,8 +10,13 @@
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  z-index: 1000; /* z-index גבוה כדי להופיע מעל הכל */
+  z-index: 1000;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: none; /* Start with the chat window hidden */
+}
+
+.chat-window.open {
+  display: flex; /* Show the chat window when open */
 }
 
 .chat-header {
@@ -21,25 +27,34 @@
   border-top-right-radius: 8px;
   text-align: center;
   font-weight: bold;
+  cursor: pointer; /* Add cursor pointer to indicate it is clickable */
 }
 
 .chat-body {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-message {
-  margin: 5px 0;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  border-radius: 5px;
+  max-width: 80%;
+  word-wrap: break-word;
+  color: black; /* Text color changed to black */
 }
 
 .chat-message.user {
-  text-align: right;
+  background: #e1ffc7;
+  align-self: flex-end;
 }
 
 .chat-message.ai {
-  text-align: left;
-  color: blue;
+  background: #f1f0f0;
+  align-self: flex-start;
 }
 
 .chat-footer {
@@ -67,4 +82,20 @@
 
 .chat-footer button:hover {
   background: #0056b3;
+}
+
+.chat-toggle-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: #007bff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
 }

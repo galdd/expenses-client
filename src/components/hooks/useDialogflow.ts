@@ -59,7 +59,7 @@ export const useDialogFlow = () => {
   });
 
   const sendMessage = (message: string) => {
-    setMessages((prevMessages) => [...prevMessages, { text: `You: ${message}`, sender: "User" }]);
+    setMessages((prevMessages) => [...prevMessages, { text: message, sender: "User" }]);
     mutation.mutate(message);
   };
 
