@@ -27,7 +27,7 @@ const sendToDialogFlow = async (message: string, token: string): Promise<DialogF
   return data;
 };
 
-export const useDialogFlow = () => {
+export const useDialogFlow = (handleCreateList: () => void) => {
   const [messages, setMessages] = useState<{ text: string; sender: string }[]>([]);
   const { getAccessTokenSilently } = useAuth0();
 
@@ -43,10 +43,7 @@ export const useDialogFlow = () => {
       ]);
 
       if (data.intent === "create_list" && data.parameters.listName) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: `List "${data.parameters.listName}" created successfully.`, sender: "AI" },
-        ]);
+        handleCreateList();
       }
     },
     onError: (error) => {

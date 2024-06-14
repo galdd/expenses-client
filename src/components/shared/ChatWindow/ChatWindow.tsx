@@ -3,33 +3,17 @@ import { CommentOutlined } from "@ant-design/icons";
 import "./ChatWindow.css";
 import useDialogflow from "../../hooks/useDialogflow";
 
-const ChatWindow = () => {
+interface ChatWindowProps {
+  onCreateList: () => void;
+}
+
+const ChatWindow: React.FC<ChatWindowProps> = ({ onCreateList }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ text: string; sender: string }[]>([
-    { text: "Hello, I am AI. How can I help you?", sender: "AI" },
-  ]);
-  const { sendMessage } = useDialogflow();
+  const { messages, sendMessage, isLoading, error } = useDialogflow(onCreateList);
 
-  const handleSend = async (message: string) => {
+  const handleSend = (message: string) => {
     if (message.trim() === "") return;
-
-    const userMessage = { text: message, sender: "User" };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
-
-    try {
-      const response = await sendMessage(message);
-      console.log("Response from server:", response);
-      const aiMessage = { text: response.response, sender: "AI" };
-      setMessages((prevMessages) => [...prevMessages, aiMessage]);
-
-      if (response.intent === "create_list" && response.parameters.listName) {
-        // Here we can handle the specific logic for create_list intent
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      const errorMessage = { text: "Sorry, something went wrong.", sender: "AI" };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
-    }
+    sendMessage(message);
   };
 
   return (
@@ -55,8 +39,8 @@ const ChatWindow = () => {
             }}
           />
           <button
-            onClick={(e) => {
-              const input = e.currentTarget.previousSibling as HTMLInputElement;
+            onClick={() => {
+              const input = document.querySelector(".chat-footer input") as HTMLInputElement;
               handleSend(input.value);
               input.value = "";
             }}
