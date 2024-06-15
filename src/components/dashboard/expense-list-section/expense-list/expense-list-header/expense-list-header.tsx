@@ -10,36 +10,26 @@ import {
 
 import "./expense-list-header.css";
 import { ExpenseListHeaderProps } from "../../../../../@types/expense-list-prop";
-import { useUpdateExpenseList } from "../../../../hooks/useExpenseLists";
+
 
 export const ExpenseListHeader: React.FC<ExpenseListHeaderProps> = ({
   listId,
   listName,
   expenseTotal,
   onDelete,
+  onEdit,
 }) => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [newListName, setNewListName] = useState(listName);
-
-  const { mutate: updateExpenseList } = useUpdateExpenseList();
 
   const handleEdit = () => {
     setIsEditModalVisible(true);
   };
 
   const handleEditOk = () => {
-    updateExpenseList(
-      { id: listId, name: newListName },
-      {
-        onSuccess: () => {
-          message.success("List updated successfully");
-          setIsEditModalVisible(false);
-        },
-        onError: (error) => {
-          message.error(`Failed to update list: ${error.message}`);
-        },
-      }
-    );
+    console.log("handleEditOk called with:", { listId, newListName });
+    onEdit(listId, newListName);
+    setIsEditModalVisible(false);
   };
 
   const handleEditCancel = () => {

@@ -19,7 +19,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = React.memo(
         <ExpenseListHeader
           listId={list._id}
           listName={list.name}
-          expenseTotal={list.totalExpenses.toFixed(2)}
+          expenseTotal={(list.totalExpenses ? list.totalExpenses : 0).toFixed(2)}
           onDelete={onDelete}
           onEdit={onEdit}
         />

@@ -5,6 +5,7 @@ import { ExpenseListType } from "../../../@types/expense-list-prop";
 import { DataLoader } from "../../shared";
 import ExpenseListToolbar from "./expense-list-toolbar/expense-list-toolbar";
 import { ExpenseList } from "./expense-list/expense-list";
+import ChatWindow from "../../shared/ChatWindow/ChatWindow";
 import "./expense-list-section.css";
 import {
   useAddExpenseList,
@@ -58,10 +59,13 @@ export const ExpenseListSection = () => {
     updateExpenseList(
       { id: listId, name },
       {
-        onSuccess: () => {
+        onSuccess: (updatedList) => {
           message.success("List updated successfully");
-          setOffset(0);
-          setLists([]);
+          setLists((prevLists) =>
+            prevLists.map((list) =>
+              list._id === updatedList._id ? { ...list, name: updatedList.name } : list
+            )
+          );
         },
         onError: (error) => {
           message.error(`Failed to update list: ${error.message}`);
@@ -89,10 +93,9 @@ export const ExpenseListSection = () => {
     addExpenseList(
       { name },
       {
-        onSuccess: () => {
+        onSuccess: (newList) => {
           message.success("List added successfully");
-          setOffset(0);
-          setLists([]);
+          setLists((prevLists) => [newList, ...prevLists]);
         },
         onError: (error) => {
           message.error(`Failed to add list: ${error.message}`);
@@ -101,10 +104,16 @@ export const ExpenseListSection = () => {
     );
   };
 
+  const handleCreateList = (newList) => {
+    const listData = newList.list ? newList.list : newList;
+
+    setLists((prevLists) => [listData, ...prevLists]);
+  };
+
   return (
     <DataLoader
-      isLoading={isLoading && lists.length === 0}
-      error={error && lists.length === 0 ? error : null}
+      isLoading={isLoading }
+      error={error}
     >
       <div className="expense-list-section">
         <div className="expense-list-container">
@@ -126,6 +135,7 @@ export const ExpenseListSection = () => {
             </button>
           )}
         </div>
+        <ChatWindow onCreateList={handleCreateList} />
       </div>
     </DataLoader>
   );

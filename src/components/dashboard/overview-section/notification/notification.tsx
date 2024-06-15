@@ -13,7 +13,7 @@ const hasNameProperty = (obj: any): obj is { name: string } => {
 };
 
 export const Notification = ({ notifications }: NotificationProps) => {
-  console.log("Rendering notifications:", notifications);
+  // console.log("Rendering notifications:", notifications);
   return (
     <div className="notifications-container">
       {notifications.map((notification, index) => {

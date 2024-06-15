@@ -40,6 +40,7 @@ const fetchExpenseLists = async (
   }
 
   const data = await response.json();
+  console.log("Fetched expense lists from server:", data); // Log the fetched data
   return data as ExpenseListsResponse;
 };
 
@@ -129,8 +130,18 @@ export const useAddExpenseList = (): UseMutationResult<
       const token = await getAccessTokenSilently();
       return addExpenseList(token, name);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenseLists"] });
+    onSuccess: (newList) => {
+      console.log("New list added:", newList);
+      queryClient.setQueryData(["expenseLists"], (oldData: any) => {
+        console.log("Old data in cache (add):", oldData);
+        if (!oldData || !oldData.data) {
+          return { data: [newList] };
+        }
+        return {
+          ...oldData,
+          data: [newList, ...oldData.data],
+        };
+      });
     },
   });
 };
@@ -148,8 +159,21 @@ export const useUpdateExpenseList = (): UseMutationResult<
       const token = await getAccessTokenSilently();
       return updateExpenseList(token, id, name);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenseLists"] });
+    onSuccess: (updatedList) => {
+      console.log("Updated list received:", updatedList);
+      queryClient.setQueryData(["expenseLists"], (oldData: any) => {
+        console.log("Old data in cache (update):", oldData);
+        if (!oldData || !oldData.data) {
+          return { data: [updatedList] };
+        }
+        const updatedData = oldData.data.map((list: any) =>
+          list._id === updatedList._id ? updatedList : list
+        );
+        return {
+          ...oldData,
+          data: updatedData,
+        };
+      });
     },
   });
 };
@@ -179,8 +203,17 @@ export const useDeleteExpenseList = (): UseMutationResult<
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenseLists"] });
+    onSuccess: (_, listId) => {
+      queryClient.setQueryData(["expenseLists"], (oldData: any) => {
+        console.log("Old data in cache (delete):", oldData);
+        if (!oldData || !oldData.data) {
+          return { data: [] };
+        }
+        return {
+          ...oldData,
+          data: oldData.data.filter((list: any) => list._id !== listId),
+        };
+      });
     },
   });
 };

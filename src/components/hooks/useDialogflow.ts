@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { useMutation, UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { useAuth0 } from "@auth0/auth0-react";
 import { apiFetch } from "../../api";
 
@@ -7,6 +7,7 @@ interface DialogFlowResponse {
   response: string;
   intent: string;
   parameters: any;
+  list?: any;
 }
 
 const sendToDialogFlow = async (message: string, token: string): Promise<DialogFlowResponse> => {
@@ -24,12 +25,16 @@ const sendToDialogFlow = async (message: string, token: string): Promise<DialogF
   }
 
   const data = await response.json();
+  console.log("Response from DialogFlow server:", data);
   return data;
 };
 
-export const useDialogFlow = (handleCreateList: () => void) => {
-  const [messages, setMessages] = useState<{ text: string; sender: string }[]>([]);
+export const useDialogFlow = (onCreateList: (list: any) => void) => {
+  const [messages, setMessages] = useState<{ text: string; sender: string }[]>([
+    { text: "Hello, I am AI. How can I help you?", sender: "AI" },
+  ]);
   const { getAccessTokenSilently } = useAuth0();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (message: string) => {
@@ -37,13 +42,24 @@ export const useDialogFlow = (handleCreateList: () => void) => {
       return sendToDialogFlow(message, token);
     },
     onSuccess: (data) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: data.response, sender: "AI" },
-      ]);
+      console.log("Mutation success:", data);
+      if (data && data.response) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: data.response, sender: "AI" },
+        ]);
 
-      if (data.intent === "create_list" && data.parameters.listName) {
-        handleCreateList();
+        if (data.intent === "create_list" && data.parameters?.listName && data.list) {
+          console.log("New list created:", data.list);
+          if (onCreateList) onCreateList(data.list);
+
+          queryClient.setQueryData(['expenseLists'], (oldData: any) => {
+            if (!oldData || !oldData.data) return { data: [data.list] };
+            return { ...oldData, data: [data.list, ...oldData.data] };
+          });
+        }
+      } else {
+        throw new Error("Invalid response structure");
       }
     },
     onError: (error) => {
@@ -60,7 +76,7 @@ export const useDialogFlow = (handleCreateList: () => void) => {
     mutation.mutate(message);
   };
 
-  return { messages, sendMessage };
+  return { messages, sendMessage, isLoading: mutation.isLoading, error: mutation.error };
 };
 
 export default useDialogFlow;
