@@ -57,13 +57,11 @@ export const ExpenseListSection = () => {
   };
 
   const handleEdit = (listId: string, name: string) => {
-    console.log("handleEdit called with:", { listId, name });
     updateExpenseList(
       { id: listId, name },
       {
         onSuccess: (updatedList) => {
           message.success("List updated successfully");
-          console.log("handleEdit success with updatedList:", updatedList);
           setLists((prevLists) =>
             prevLists.map((list) =>
               list._id === updatedList._id ? { ...list, name: updatedList.name } : list
@@ -113,24 +111,19 @@ export const ExpenseListSection = () => {
     setLists((prevLists) => [listData, ...prevLists]);
   };
 
-  const handleUpdateList = (listId: string, name: string) => {
-    handleEdit(listId, name);
+  const handleUpdateList = (updatedList) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list._id === updatedList._id ? { ...list, name: updatedList.name } : list
+      )
+    );
   };
 
-  const handleDeleteList = (listId: string) => {
-    handleDelete(listId);
+  const handleDeleteList = (deletedListId) => {
+    setLists((prevLists) => prevLists.filter((list) => list._id !== deletedListId));
   };
 
-  const handleReadLists = (lists: any[]) => {
-    setLists(lists);
-  };
-
-  const { messages, sendMessage, isLoading: isChatLoading, error: chatError } = useDialogFlow(
-    handleCreateList,
-    handleUpdateList,
-    handleDeleteList,
-    handleReadLists
-  );
+  const { messages, sendMessage, isLoading: isChatLoading, error: chatError } = useDialogFlow(handleCreateList, handleEdit, handleDeleteList);
 
   return (
     <DataLoader isLoading={isLoading} error={error}>
@@ -160,9 +153,8 @@ export const ExpenseListSection = () => {
           isLoading={isChatLoading}
           error={chatError}
           onCreateList={handleCreateList}
-          onUpdateList={handleUpdateList}
+          onUpdateList={handleEdit}
           onDeleteList={handleDeleteList}
-          onReadLists={handleReadLists}
         />
       </div>
     </DataLoader>

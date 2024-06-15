@@ -6,11 +6,12 @@ import useDialogFlow from "../../hooks/useDialogFlow";
 interface ChatWindowProps {
   onCreateList: (list: any) => void;
   onUpdateList: (listId: string, name: string) => void;
+  onDeleteList: (listId: string) => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ onCreateList, onUpdateList }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ onCreateList, onUpdateList, onDeleteList }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, sendMessage, isLoading, error } = useDialogFlow(onCreateList, onUpdateList);
+  const { messages, sendMessage, isLoading, error } = useDialogFlow(onCreateList, onUpdateList, onDeleteList);
 
   const handleSend = (message: string) => {
     if (message.trim() === "") return;

@@ -8,7 +8,7 @@ interface DialogFlowResponse {
   intent: string;
   parameters: any;
   list?: any;
-  lists?: any[];
+  listId?: string;  // הוספת ה-listId ל-response
 }
 
 const sendToDialogFlow = async (message: string, token: string): Promise<DialogFlowResponse> => {
@@ -33,8 +33,7 @@ const sendToDialogFlow = async (message: string, token: string): Promise<DialogF
 export const useDialogFlow = (
   onCreateList: (list: any) => void,
   onEdit: (listId: string, name: string) => void,
-  onDelete: (listId: string) => void,
-  onRead: (lists: any[]) => void
+  onDeleteList: (listId: string) => void
 ) => {
   const [messages, setMessages] = useState<{ text: string; sender: string }[]>([
     { text: "Hello, I am AI. How can I help you?", sender: "AI" },
@@ -69,19 +68,28 @@ export const useDialogFlow = (
             }
             break;
           case "delete_list":
-            if (data.parameters?.listId) {
-              console.log("List deleted:", data.parameters.listId.stringValue);
-              onDelete(data.parameters.listId.stringValue);
+            if (data.listId) {
+              console.log("List deleted:", data.listId);
+              onDeleteList(data.listId);
             }
             break;
           case "read_list":
-            if (data.lists) {
-              console.log("Lists read:", data.lists);
-              onRead(data.lists);
-            }
+            // handle read list response if needed
+            break;
+          case "create_expense":
+            // handle create expense response if needed
+            break;
+          case "update_expense":
+            // handle update expense response if needed
+            break;
+          case "delete_expense":
+            // handle delete expense response if needed
+            break;
+          case "read_expense":
+            // handle read expense response if needed
             break;
           default:
-            console.warn("Unhandled intent:", data.intent);
+            throw new Error("Invalid intent received");
         }
       } else {
         throw new Error("Invalid response structure");
