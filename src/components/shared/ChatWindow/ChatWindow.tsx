@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import { CommentOutlined } from "@ant-design/icons";
 import "./ChatWindow.css";
-import useDialogFlow from "../../hooks/useDialogflow";
-
+import useDialogFlow from "../../hooks/useDialogFlow";
 
 interface ChatWindowProps {
   onCreateList: (list: any) => void;
+  onUpdateList: (listId: string, name: string) => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ onCreateList }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ onCreateList, onUpdateList }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, sendMessage, isLoading, error } = useDialogFlow(onCreateList);
+  const { messages, sendMessage, isLoading, error } = useDialogFlow(onCreateList, onUpdateList);
 
   const handleSend = (message: string) => {
     if (message.trim() === "") return;
+    console.log("Sending message to server:", message);
     sendMessage(message);
   };
 

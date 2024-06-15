@@ -8,6 +8,7 @@ interface DialogFlowResponse {
   intent: string;
   parameters: any;
   list?: any;
+  lists?: any[];
 }
 
 const sendToDialogFlow = async (message: string, token: string): Promise<DialogFlowResponse> => {
@@ -29,7 +30,12 @@ const sendToDialogFlow = async (message: string, token: string): Promise<DialogF
   return data;
 };
 
-export const useDialogFlow = (onCreateList: (list: any) => void, onUpdateList: (list: any) => void) => {
+export const useDialogFlow = (
+  onCreateList: (list: any) => void,
+  onEdit: (listId: string, name: string) => void,
+  onDelete: (listId: string) => void,
+  onRead: (lists: any[]) => void
+) => {
   const [messages, setMessages] = useState<{ text: string; sender: string }[]>([
     { text: "Hello, I am AI. How can I help you?", sender: "AI" },
   ]);
@@ -49,27 +55,33 @@ export const useDialogFlow = (onCreateList: (list: any) => void, onUpdateList: (
           { text: data.response, sender: "AI" },
         ]);
 
-        if (data.intent === "create_list" && data.parameters?.listName && data.list) {
-          console.log("New list created:", data.list);
-          if (onCreateList) onCreateList(data.list);
-
-          queryClient.setQueryData(['expenseLists'], (oldData: any) => {
-            if (!oldData || !oldData.data) return { data: [data.list] };
-            return { ...oldData, data: [data.list, ...oldData.data] };
-          });
-        }
-
-        if (data.intent === "update_list" && data.list) {
-          console.log("List updated:", data.list);
-          if (onUpdateList) onUpdateList(data.list);
-
-          queryClient.setQueryData(['expenseLists'], (oldData: any) => {
-            if (!oldData || !oldData.data) return { data: [data.list] };
-            const updatedData = oldData.data.map((list: any) =>
-              list._id === data.list._id ? data.list : list
-            );
-            return { ...oldData, data: updatedData };
-          });
+        switch (data.intent) {
+          case "create_list":
+            if (data.parameters?.listName && data.list) {
+              console.log("New list created:", data.list);
+              onCreateList(data.list);
+            }
+            break;
+          case "update_list":
+            if (data.list) {
+              console.log("List updated:", data.list);
+              onEdit(data.list._id, data.list.name);
+            }
+            break;
+          case "delete_list":
+            if (data.parameters?.listId) {
+              console.log("List deleted:", data.parameters.listId.stringValue);
+              onDelete(data.parameters.listId.stringValue);
+            }
+            break;
+          case "read_list":
+            if (data.lists) {
+              console.log("Lists read:", data.lists);
+              onRead(data.lists);
+            }
+            break;
+          default:
+            console.warn("Unhandled intent:", data.intent);
         }
       } else {
         throw new Error("Invalid response structure");

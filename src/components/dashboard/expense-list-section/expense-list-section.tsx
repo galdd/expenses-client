@@ -13,6 +13,7 @@ import {
   useExpenseLists,
   useUpdateExpenseList,
 } from "../../hooks/useExpenseLists";
+import useDialogFlow from "../../hooks/useDialogFlow";
 
 export const ExpenseListSection = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
@@ -56,11 +57,13 @@ export const ExpenseListSection = () => {
   };
 
   const handleEdit = (listId: string, name: string) => {
+    console.log("handleEdit called with:", { listId, name });
     updateExpenseList(
       { id: listId, name },
       {
         onSuccess: (updatedList) => {
           message.success("List updated successfully");
+          console.log("handleEdit success with updatedList:", updatedList);
           setLists((prevLists) =>
             prevLists.map((list) =>
               list._id === updatedList._id ? { ...list, name: updatedList.name } : list
@@ -110,13 +113,24 @@ export const ExpenseListSection = () => {
     setLists((prevLists) => [listData, ...prevLists]);
   };
 
-  const handleUpdateList = (updatedList) => {
-    setLists((prevLists) =>
-      prevLists.map((list) =>
-        list._id === updatedList._id ? { ...list, name: updatedList.name } : list
-      )
-    );
+  const handleUpdateList = (listId: string, name: string) => {
+    handleEdit(listId, name);
   };
+
+  const handleDeleteList = (listId: string) => {
+    handleDelete(listId);
+  };
+
+  const handleReadLists = (lists: any[]) => {
+    setLists(lists);
+  };
+
+  const { messages, sendMessage, isLoading: isChatLoading, error: chatError } = useDialogFlow(
+    handleCreateList,
+    handleUpdateList,
+    handleDeleteList,
+    handleReadLists
+  );
 
   return (
     <DataLoader isLoading={isLoading} error={error}>
@@ -141,8 +155,14 @@ export const ExpenseListSection = () => {
           )}
         </div>
         <ChatWindow
+          messages={messages}
+          sendMessage={sendMessage}
+          isLoading={isChatLoading}
+          error={chatError}
           onCreateList={handleCreateList}
           onUpdateList={handleUpdateList}
+          onDeleteList={handleDeleteList}
+          onReadLists={handleReadLists}
         />
       </div>
     </DataLoader>

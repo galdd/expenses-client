@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dropdown, Modal, Input, message } from "antd";
 import {
   UserOutlined,
@@ -11,7 +11,6 @@ import {
 import "./expense-list-header.css";
 import { ExpenseListHeaderProps } from "../../../../../@types/expense-list-prop";
 
-
 export const ExpenseListHeader: React.FC<ExpenseListHeaderProps> = ({
   listId,
   listName,
@@ -22,12 +21,17 @@ export const ExpenseListHeader: React.FC<ExpenseListHeaderProps> = ({
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [newListName, setNewListName] = useState(listName);
 
+  useEffect(() => {
+    setNewListName(listName);
+    // console.log("Updated newListName with listName:", listName); // Log when listName changes
+  }, [listName]);
+
   const handleEdit = () => {
     setIsEditModalVisible(true);
   };
 
   const handleEditOk = () => {
-    console.log("handleEditOk called with:", { listId, newListName });
+    // console.log("handleEditOk called with:", { listId, newListName });
     onEdit(listId, newListName);
     setIsEditModalVisible(false);
   };
@@ -79,6 +83,7 @@ export const ExpenseListHeader: React.FC<ExpenseListHeaderProps> = ({
     <div className="expense-list-header">
       <div className="list-name-and-price">
         <h2 className="list-name">{listName || "List"}</h2>
+       
       </div>
 
       <div className="list-header-actions">
