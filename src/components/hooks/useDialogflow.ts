@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { useAuth0 } from "@auth0/auth0-react";
 import { apiFetch } from "../../api";
 
@@ -29,10 +29,7 @@ const sendToDialogFlow = async (message: string, token: string): Promise<DialogF
   return data;
 };
 
-export const useDialogFlow = (
-  onCreateList: (list: any) => void,
-  onUpdateList: (list: any) => void
-) => {
+export const useDialogFlow = (onCreateList: (list: any) => void, onUpdateList: (list: any) => void) => {
   const [messages, setMessages] = useState<{ text: string; sender: string }[]>([
     { text: "Hello, I am AI. How can I help you?", sender: "AI" },
   ]);
@@ -62,7 +59,7 @@ export const useDialogFlow = (
           });
         }
 
-        if (data.intent === "update_list" && data.parameters?.listName && data.list) {
+        if (data.intent === "update_list" && data.list) {
           console.log("List updated:", data.list);
           if (onUpdateList) onUpdateList(data.list);
 
