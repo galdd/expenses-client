@@ -110,11 +110,16 @@ export const ExpenseListSection = () => {
     setLists((prevLists) => [listData, ...prevLists]);
   };
 
+  const handleUpdateList = (updatedList) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list._id === updatedList._id ? { ...list, name: updatedList.name } : list
+      )
+    );
+  };
+
   return (
-    <DataLoader
-      isLoading={isLoading }
-      error={error}
-    >
+    <DataLoader isLoading={isLoading} error={error}>
       <div className="expense-list-section">
         <div className="expense-list-container">
           <ExpenseListToolbar
@@ -135,7 +140,10 @@ export const ExpenseListSection = () => {
             </button>
           )}
         </div>
-        <ChatWindow onCreateList={handleCreateList} />
+        <ChatWindow
+          onCreateList={handleCreateList}
+          onUpdateList={handleUpdateList}
+        />
       </div>
     </DataLoader>
   );
