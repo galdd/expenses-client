@@ -53,8 +53,38 @@
 }
 
 .chat-message.ai {
-  background: #f1f0f0;
-  align-self: flex-start;
+  white-space: pre-wrap;
+  font-family: monospace;
+  text-align: left;
+  color: black;
+  background-color: #f1f1f1;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+.chat-message.ai table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.chat-message.ai table th,
+.chat-message.ai table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.chat-message.ai table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #4caf50;
+  color: white;
+}
+
+.chat-message.ai .list-details {
+  margin-bottom: 10px;
 }
 
 .chat-footer {

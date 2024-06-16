@@ -107,7 +107,6 @@ export const ExpenseListSection = () => {
 
   const handleCreateList = (newList) => {
     const listData = newList.list ? newList.list : newList;
-
     setLists((prevLists) => [listData, ...prevLists]);
   };
 
@@ -123,7 +122,72 @@ export const ExpenseListSection = () => {
     setLists((prevLists) => prevLists.filter((list) => list._id !== deletedListId));
   };
 
-  const { messages, sendMessage, isLoading: isChatLoading, error: chatError } = useDialogFlow(handleCreateList, handleEdit, handleDeleteList);
+  const handleReadList = (list) => {
+    setLists((prevLists) =>
+      prevLists.map((prevList) =>
+        prevList._id === list._id ? list : prevList
+      )
+    );
+  };
+
+  const handleCreateExpense = (expense) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list._id === expense.listId
+          ? { ...list, expenses: [...list.expenses, expense] }
+          : list
+      )
+    );
+  };
+
+  const handleUpdateExpense = (expenseId, name, amount) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list.expenses.some((expense) => expense._id === expenseId)
+          ? {
+              ...list,
+              expenses: list.expenses.map((expense) =>
+                expense._id === expenseId
+                  ? { ...expense, name, amount }
+                  : expense
+              ),
+            }
+          : list
+      )
+    );
+  };
+
+  const handleDeleteExpense = (expenseId) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list.expenses.some((expense) => expense._id === expenseId)
+          ? {
+              ...list,
+              expenses: list.expenses.filter((expense) => expense._id !== expenseId),
+            }
+          : list
+      )
+    );
+  };
+
+  const handleReadExpense = (expenses) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list._id === expenses.listId ? { ...list, expenses } : list
+      )
+    );
+  };
+
+  const { messages, sendMessage, isLoading: isChatLoading, error: chatError } = useDialogFlow(
+    handleCreateList,
+    handleEdit,
+    handleDeleteList,
+    handleReadList,
+    handleCreateExpense,
+    handleUpdateExpense,
+    handleDeleteExpense,
+    handleReadExpense
+  );
 
   return (
     <DataLoader isLoading={isLoading} error={error}>
@@ -155,6 +219,11 @@ export const ExpenseListSection = () => {
           onCreateList={handleCreateList}
           onUpdateList={handleEdit}
           onDeleteList={handleDeleteList}
+          onReadList={handleReadList}
+          onCreateExpense={handleCreateExpense}
+          onUpdateExpense={handleUpdateExpense}
+          onDeleteExpense={handleDeleteExpense}
+          onReadExpense={handleReadExpense}
         />
       </div>
     </DataLoader>
