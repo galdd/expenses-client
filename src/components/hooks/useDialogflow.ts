@@ -8,7 +8,7 @@ interface DialogFlowResponse {
   intent: string;
   parameters: any;
   list?: any;
-  listId?: string;  // הוספת ה-listId ל-response
+  error?: string; // הוספת שדה לשגיאות
 }
 
 const sendToDialogFlow = async (message: string, token: string): Promise<DialogFlowResponse> => {
@@ -22,7 +22,8 @@ const sendToDialogFlow = async (message: string, token: string): Promise<DialogF
   });
 
   if (!response.ok) {
-    throw new Error(`Server error: ${response.statusText}`);
+    const errorText = await response.text();
+    throw new Error(`Server error: ${response.statusText}\n${errorText}`);
   }
 
   const data = await response.json();
@@ -32,7 +33,7 @@ const sendToDialogFlow = async (message: string, token: string): Promise<DialogF
 
 export const useDialogFlow = (
   onCreateList: (list: any) => void,
-  onEdit: (listId: string, name: string) => void,
+  onUpdateList: (listId: string, name: string) => void,
   onDeleteList: (listId: string) => void
 ) => {
   const [messages, setMessages] = useState<{ text: string; sender: string }[]>([
@@ -54,52 +55,29 @@ export const useDialogFlow = (
           { text: data.response, sender: "AI" },
         ]);
 
-        switch (data.intent) {
-          case "create_list":
-            if (data.parameters?.listName && data.list) {
-              console.log("New list created:", data.list);
-              onCreateList(data.list);
-            }
-            break;
-          case "update_list":
-            if (data.list) {
-              console.log("List updated:", data.list);
-              onEdit(data.list._id, data.list.name);
-            }
-            break;
-          case "delete_list":
-            if (data.listId) {
-              console.log("List deleted:", data.listId);
-              onDeleteList(data.listId);
-            }
-            break;
-          case "read_list":
-            // handle read list response if needed
-            break;
-          case "create_expense":
-            // handle create expense response if needed
-            break;
-          case "update_expense":
-            // handle update expense response if needed
-            break;
-          case "delete_expense":
-            // handle delete expense response if needed
-            break;
-          case "read_expense":
-            // handle read expense response if needed
-            break;
-          default:
-            throw new Error("Invalid intent received");
+        if (data.intent === "create_list" && data.parameters?.listName && data.list) {
+          console.log("New list created:", data.list);
+          onCreateList(data.list);
+        } else if (data.intent === "update_list" && data.list) {
+          console.log("List updated:", data.list);
+          onUpdateList(data.list._id, data.list.name);
+        } else if (data.intent === "delete_list" && data.listId) {
+          console.log("List deleted:", data.listId);
+          onDeleteList(data.listId);
         }
       } else {
         throw new Error("Invalid response structure");
       }
     },
     onError: (error) => {
-      console.error("Error:", error);
+      const errorMessage = error.message || "AI: Sorry, something went wrong.";
+      const errorParts = error.message.split('\n');
+     
+      const parsedError = JSON.parse(errorParts[1]);
+      console.log(parsedError);
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: "AI: Sorry, something went wrong.", sender: "AI" },
+        { text: `AI: ${parsedError.response}`, sender: "AI" },
       ]);
     },
   });
